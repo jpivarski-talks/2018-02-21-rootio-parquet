@@ -53,9 +53,25 @@
 
 % START START START START START START START START START START START START START
 
-\begin{frame}{First slide}
+\begin{frame}{What is Parquet?}
 \vspace{0.5 cm}
-HERE
+\begin{columns}
+\column{1.1\linewidth}
+\begin{tabular}{l l c c c p{0.35\linewidth}}
+1974 & HBOOK & tabular & rowwise & FORTRAN & first ntuples in HEP \\
+1983 & ZEBRA & \textcolor{darkorange}{hierarchical} & rowwise & FORTRAN & event records in HEP \\
+1989 & PAW CWN & tabular & \textcolor{darkorange}{columnar} & FORTRAN & {\it faster} ntuples in HEP \\
+\only<1>{1995}\only<2>{\textcolor{blue}{1995}} & \only<1>{ROOT}\only<2>{\textcolor{blue}{ROOT}} & \only<1>{\textcolor{darkorange}{hierarchical}}\only<2>{\textcolor{blue}{hierarchical}} & \only<1>{\textcolor{darkorange}{columnar}}\only<2>{\textcolor{blue}{columnar}} & \only<1>{C++}\only<2>{\textcolor{blue}{C++}} & \only<1>{object persistence in HEP}\only<2>{\textcolor{blue}{object persistence in HEP}} \\
+2001 & ProtoBuf & \textcolor{darkorange}{hierarchical} & rowwise & many & Google's RPC protocol \\
+2002 & MonetDB & tabular & \textcolor{darkorange}{columnar} & database & ``first'' columnar database \\
+2005 & C-Store & tabular & \textcolor{darkorange}{columnar} & database & also early, became HP's Vertica \\
+2007 & Thrift & \textcolor{darkorange}{hierarchical} & rowwise & many & Facebook's RPC protocol \\
+2009 & Avro & \textcolor{darkorange}{hierarchical} & rowwise & many & Hadoop's object permanance and interchange format \\
+2010 & Dremel & \textcolor{darkorange}{hierarchical} & \textcolor{darkorange}{columnar} & C++, Java & Google's nested-object database, became BigQuery \\
+\only<1>{2013}\only<2>{\textcolor{blue}{2013}} & \only<1>{Parquet}\only<2>{\textcolor{blue}{Parquet}} & \only<1>{\textcolor{darkorange}{hierarchical}}\only<2>{\textcolor{blue}{hierarchical}} & \only<1>{\textcolor{darkorange}{columnar}}\only<2>{\textcolor{blue}{columnar}} & \only<1>{many}\only<2>{\textcolor{blue}{many}} & \only<1>{open source object persistence, based on Google's paper}\only<2>{\textcolor{blue}{open source object persistence, based on Google's paper}} \\
+2016 & Arrow & \textcolor{darkorange}{hierarchical} & \textcolor{darkorange}{columnar} & in-memory & shared memory data exchange \\
+\end{tabular}
+\end{columns}
 \end{frame}
 
 \begin{frame}{So-called ``uncompressed'' Parquet is tighter, but gzip is the same}
@@ -91,7 +107,7 @@ Parquet gzip
 Ensemble of 13 physics types vs.\ cluster size (ROOT) row group size (Parquet).
 \end{frame}
 
-\begin{frame}{But uncompressed$+$dictionary encoding is close to full gzip, lzma!}
+\begin{frame}{But Parquet's dictionary encoding is close to ROOT's full gzip}
 \begin{columns}
 \column{0.26\linewidth}
 \begin{center}
@@ -124,7 +140,7 @@ with dict encoding
 \end{columns}
 \end{frame}
 
-\begin{frame}{HERE}
+\begin{frame}{Tabular comparison}
 \vspace{0.5 cm}
 Highest cluster/row group (100\,000 events), total file size (sum of 13 physics types):
 
@@ -139,7 +155,10 @@ gzip                & \ldots & \ldots & \ldots & \ldots \\
 lzma                & \ldots & & \ldots & \\
 \end{tabular}
 \end{center}
+
+$601+21$ of NanoAOD's $955$ branches are booleans named {\tt\small HLT\_*} or {\tt\small Flag\_*}, which unnecessarily increase the uncompressed ROOT size.
 \end{frame}
+
 
 
 
