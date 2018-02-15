@@ -113,10 +113,10 @@ wings are hands
 {\large \underline{ROOT}}
 
 \begin{itemize}
-\item Store individual C++ objects rowwise in TDirectories and large collections of C++ objects (or raw tables) rowwise or columnar in TTrees.
+\item Store individual C++ objects rowwise in TDirectories and large collections of C++ objects (or simple tables) rowwise or columnar in TTrees.
 \item Can write many times, like HDF5 or a database, but most users write once.
-\item Selective reading of columns.
-\item Cluster/basket structure.
+\item \textcolor{darkorange}{Selective reading of columns (same).}
+\item \textcolor{darkorange}{Cluster/basket structure (same).}
 \item Plain encodings, one level of depth (after which the encoding is rowwise).
 \item Compression codecs: gzip, lz4, lzma, \textcolor{gray}{zstd (in consideration)}
 \end{itemize}
@@ -125,10 +125,10 @@ wings are hands
 {\large \underline{Parquet}}
 
 \begin{itemize}
-\item Store large collections of language-independent, columnar objects. No handling of solitary or rowwise objects.
+\item Only store large collections of language-independent, columnar objects. No handling of solitary or rowwise objects.
 \item Write once, producing an immutable artifact.
-\item Selective reading of columns.
-\item Row group/page structure.
+\item \textcolor{darkorange}{Selective reading of columns (same).}
+\item \textcolor{darkorange}{Row group/page structure (same).}
 \item Highly packed encodings, any level of depth (logarithmic scaling with depth).
 \item Compression codecs: snappy, gzip, lzo, brotli, \textcolor{gray}{lz4, zstd (version 2.3.2)}
 \end{itemize}
@@ -146,18 +146,22 @@ wings are hands
 
 \item Header must be rewritten during file-writing to point to new objects.
 
-Failure is partially recoverable, but the writing is non-sequential.
+\item Failure is partially recoverable, but the writing is non-sequential.
+
+\item Facilitates use of ROOT as a database.
 \end{itemize}
 
 \column{0.5\linewidth}
 {\large \underline{Parquet}}
 
 \begin{itemize}
-\item Last bytes specify a footer size, immediately before that is a footer with metadata and seek points.
+\item Last 4 bytes specify a footer size, immediately before that is a footer with metadata and seek points.
 
 \item Objects are written sequentially and only pointed to at the end.
 
-Failure invalidates the whole file, but writing is sequential.
+\item Failure invalidates the whole file, but writing is sequential.
+
+\item Parquet is intended to be write-once.
 \end{itemize}
 \end{columns}
 \end{frame}
@@ -169,16 +173,76 @@ Failure invalidates the whole file, but writing is sequential.
 {\large \underline{ROOT}}
 
 \begin{itemize}
-\item 
+\item Data structures for metadata are specified by streamers, which relate bytes on disk to fields in C++ class.
 
+\item Data in the large collections (if not simple tables) are specified by the same streamers.
+
+\item Streamer mechanism has built-in schema evolution.
+
+\item Data types are C++ types.
 \end{itemize}
 
 \column{0.5\linewidth}
 {\large \underline{Parquet}}
 
 \begin{itemize}
-\item 
+\item Reuses Thrift, a rowwise data specification, for the metadata, inheriting its schema evolution.
 
+\item Separately specifies a physical schema (how the data are represented in terms of simple types) and logical schema (mapping onto an existing type system). Data types are independent of any programming language.
+\end{itemize}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Implementation comparision: ROOT and Parquet (3)}
+\vspace{0.5 cm}
+\begin{columns}
+\column{0.5\linewidth}
+{\large \underline{ROOT}}
+
+\begin{itemize}
+\item Variable-sized data enabled by two arrays: contiguous data content and pointers to the start of each object.
+
+\item Permits random access by entry index.
+\end{itemize}
+
+\column{0.5\linewidth}
+{\large \underline{Parquet}}
+
+\begin{itemize}
+\item Contiguous data array accompanied by two more arrays:
+\begin{itemize}
+\item definition levels: integers indicating depth of first {\tt\small null} in data; maximum for non-null data.
+\item repetition levels: integers indicating depth of continuing sub-list, e.g.\ {\tt\small 0} means new top-level list.
+\end{itemize}
+
+\item Definition levels required for non- nullable data, to encode empty lists.
+
+\item Schema depth fixes maximum definition/repetition values, and therefore number of bits in their representations.
+\end{itemize}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Implementation comparision: ROOT and Parquet (4)}
+\vspace{0.5 cm}
+\begin{columns}
+\column{0.5\linewidth}
+{\large \underline{ROOT}}
+
+\begin{itemize}
+\item Data are simply encoded, by streamers or as basic C++ types (e.g.\ {\tt\small Char\_t, Int64\_t, float, double}).
+\end{itemize}
+
+\column{0.5\linewidth}
+{\large \underline{Parquet}}
+
+\begin{itemize}
+\item Integers and booleans with known maximum are packed into the fewest possible bits.
+
+\item Other integers are encoded in variable-width formats, e.g.\ 1~byte up to 127, 2~bytes up to 16511, zig-zagging for signed integers.
+
+\item Switches between run length encoding and bit-packing dynamically.
+
+\item Optional ``dictionary encoding,'' which replaces data with a dictionary of unique values and indexes into that dictionary (variable-width encoded).
 \end{itemize}
 \end{columns}
 \end{frame}
