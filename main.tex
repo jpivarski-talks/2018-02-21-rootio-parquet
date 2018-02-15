@@ -74,6 +74,38 @@
 \end{columns}
 \end{frame}
 
+\begin{frame}{Developed independently to do the same thing}
+\begin{center}
+\Large Google Dremel authors claimed to be unaware of any precedents, \\ so they provide an example of convergent evolution.
+\end{center}
+
+\begin{columns}
+\column{0.35\linewidth}
+\begin{center}
+\includegraphics[width=\linewidth]{dragonfly.jpg}
+
+\vspace{0.25 cm}
+wings are not limbs
+\end{center}
+
+\column{0.35\linewidth}
+\begin{center}
+\includegraphics[width=\linewidth]{bird.jpg}
+
+\vspace{0.25 cm}
+wings are arms
+\end{center}
+
+\column{0.35\linewidth}
+\begin{center}
+\includegraphics[width=\linewidth]{bat.jpg}
+
+\vspace{0.25 cm}
+wings are hands
+\end{center}
+\end{columns}
+\end{frame}
+
 \begin{frame}{Feature comparison: ROOT and Parquet}
 \vspace{0.5 cm}
 \begin{columns}[t]
@@ -103,8 +135,52 @@
 \end{columns}
 \end{frame}
 
-\begin{frame}{}
+\begin{frame}{Implementation comparision: ROOT and Parquet (1)}
+\vspace{0.5 cm}
+\begin{columns}[t]
+\column{0.5\linewidth}
+{\large \underline{ROOT}}
 
+\begin{itemize}
+\item First object in the file is a header providing metadata and seek points to other data structures in the file.
+
+\item Header must be rewritten during file-writing to point to new objects.
+
+Failure is partially recoverable, but the writing is non-sequential.
+\end{itemize}
+
+\column{0.5\linewidth}
+{\large \underline{Parquet}}
+
+\begin{itemize}
+\item Last bytes specify a footer size, immediately before that is a footer with metadata and seek points.
+
+\item Objects are written sequentially and only pointed to at the end.
+
+Failure invalidates the whole file, but writing is sequential.
+\end{itemize}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Implementation comparision: ROOT and Parquet (2)}
+\vspace{0.5 cm}
+\begin{columns}[t]
+\column{0.5\linewidth}
+{\large \underline{ROOT}}
+
+\begin{itemize}
+\item 
+
+\end{itemize}
+
+\column{0.5\linewidth}
+{\large \underline{Parquet}}
+
+\begin{itemize}
+\item 
+
+\end{itemize}
+\end{columns}
 \end{frame}
 
 
