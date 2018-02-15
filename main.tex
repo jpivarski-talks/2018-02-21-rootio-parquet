@@ -20,6 +20,7 @@
 \usepackage{bold-extra}
 \usepackage{minted}
 \usepackage[thicklines]{cancel}
+\usepackage{booktabs}
 
 \xdefinecolor{dianablue}{rgb}{0.18,0.24,0.31}
 \xdefinecolor{darkblue}{rgb}{0.1,0.1,0.7}
@@ -87,29 +88,29 @@ Parquet gzip
 \end{columns}
 
 \vspace{0.25 cm}
-Ensemble of 13 CMS datasets vs.\ cluster size (ROOT) row group size (Parquet).
+Ensemble of 13 physics types vs.\ cluster size (ROOT) row group size (Parquet).
 \end{frame}
 
-\begin{frame}{HERE}
+\begin{frame}{But uncompressed$+$dictionary encoding is close to full gzip, lzma!}
 \begin{columns}
 \column{0.26\linewidth}
 \begin{center}
+\mbox{\hspace{3 cm}}
 ROOT gzip
-\mbox{\hspace{1 cm}}
 
 \includegraphics[width=\linewidth]{root-gzip-2.png}
 \end{center}
 \column{0.26\linewidth}
 \begin{center}
+\mbox{\hspace{3 cm}}
 ROOT lzma
-\mbox{\hspace{1 cm}}
 
 \includegraphics[width=\linewidth]{root-lzma.png}
 \end{center}
 \column{0.26\linewidth}
 \begin{center}
+\mbox{\hspace{3 cm}}
 Parquet gzip
-\mbox{\hspace{1 cm}}
 
 \includegraphics[width=\linewidth]{parquet-gzip-2.png}
 \end{center}
@@ -122,6 +123,24 @@ with dict encoding
 \end{center}
 \end{columns}
 \end{frame}
+
+\begin{frame}{HERE}
+\vspace{0.5 cm}
+Highest cluster/row group (100\,000 events), total file size (sum of 13 physics types):
+
+\begin{center}
+\begin{tabular}{r c c | c c}
+                    & \multicolumn{2}{c}{all branches} & \multicolumn{2}{c}{without trigger} \\
+                    & ROOT & Parquet & ROOT & Parquet \\\hline
+uncompressed        & \ldots & \ldots & \ldots & \ldots \\
+dictionary encoding & & \ldots & & \ldots \\
+lz4                 & \ldots & & \ldots & \\
+gzip                & \ldots & \ldots & \ldots & \ldots \\
+lzma                & \ldots & & \ldots & \\
+\end{tabular}
+\end{center}
+\end{frame}
+
 
 
 \end{document}
