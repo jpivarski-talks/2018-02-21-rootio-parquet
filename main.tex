@@ -57,4 +57,71 @@
 HERE
 \end{frame}
 
+\begin{frame}{So-called ``uncompressed'' Parquet is tighter, but gzip is the same}
+\vspace{-0.1 cm}
+\begin{columns}
+\column{0.26\linewidth}
+\begin{center}
+ROOT uncompressed
+
+\includegraphics[width=\linewidth]{root-none.png}
+\end{center}
+\column{0.26\linewidth}
+\begin{center}
+Parquet uncompressed
+
+\includegraphics[width=\linewidth]{parquet-none.png}
+\end{center}
+\column{0.26\linewidth}
+\begin{center}
+ROOT gzip
+
+\includegraphics[width=\linewidth]{root-gzip.png}
+\end{center}
+\column{0.26\linewidth}
+\begin{center}
+Parquet gzip
+
+\includegraphics[width=\linewidth]{parquet-gzip.png}
+\end{center}
+\end{columns}
+
+\vspace{0.25 cm}
+Ensemble of 13 CMS datasets vs.\ cluster size (ROOT) row group size (Parquet).
+\end{frame}
+
+\begin{frame}{HERE}
+\begin{columns}
+\column{0.26\linewidth}
+\begin{center}
+ROOT gzip
+\mbox{\hspace{1 cm}}
+
+\includegraphics[width=\linewidth]{root-gzip-2.png}
+\end{center}
+\column{0.26\linewidth}
+\begin{center}
+ROOT lzma
+\mbox{\hspace{1 cm}}
+
+\includegraphics[width=\linewidth]{root-lzma.png}
+\end{center}
+\column{0.26\linewidth}
+\begin{center}
+Parquet gzip
+\mbox{\hspace{1 cm}}
+
+\includegraphics[width=\linewidth]{parquet-gzip-2.png}
+\end{center}
+\column{0.26\linewidth}
+\begin{center}
+Parquet uncompressed
+with dict encoding
+
+\includegraphics[width=\linewidth]{parquet-dict.png}
+\end{center}
+\end{columns}
+\end{frame}
+
+
 \end{document}
