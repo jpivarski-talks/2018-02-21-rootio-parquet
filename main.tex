@@ -67,12 +67,47 @@
 2005 & C-Store & tabular & \textcolor{darkorange}{columnar} & database & also early, became HP's Vertica \\
 2007 & Thrift & \textcolor{darkorange}{hierarchical} & rowwise & many & Facebook's RPC protocol \\
 2009 & Avro & \textcolor{darkorange}{hierarchical} & rowwise & many & Hadoop's object permanance and interchange format \\
-2010 & Dremel & \textcolor{darkorange}{hierarchical} & \textcolor{darkorange}{columnar} & C++, Java & Google's nested-object database, became BigQuery \\
+2010 & Dremel & \textcolor{darkorange}{hierarchical} & \textcolor{darkorange}{columnar} & C++, Java & Google's nested-object database (closed source), became BigQuery \\
 \only<1>{2013}\only<2>{\textcolor{blue}{2013}} & \only<1>{Parquet}\only<2>{\textcolor{blue}{Parquet}} & \only<1>{\textcolor{darkorange}{hierarchical}}\only<2>{\textcolor{blue}{hierarchical}} & \only<1>{\textcolor{darkorange}{columnar}}\only<2>{\textcolor{blue}{columnar}} & \only<1>{many}\only<2>{\textcolor{blue}{many}} & \only<1>{open source object persistence, based on Google's paper}\only<2>{\textcolor{blue}{open source object persistence, based on Google's paper}} \\
-2016 & Arrow & \textcolor{darkorange}{hierarchical} & \textcolor{darkorange}{columnar} & in-memory & shared memory data exchange \\
+2016 & Arrow & \textcolor{darkorange}{hierarchical} & \textcolor{darkorange}{columnar} & many & shared-memory object exchange \\
 \end{tabular}
 \end{columns}
 \end{frame}
+
+\begin{frame}{Feature comparison: ROOT and Parquet}
+\vspace{0.5 cm}
+\begin{columns}[t]
+\column{0.5\linewidth}
+{\large \underline{ROOT}}
+
+\begin{itemize}
+\item Store individual C++ objects rowwise in TDirectories and large collections of C++ objects (or raw tables) rowwise or columnar in TTrees.
+\item Can write many times, like HDF5 or a database, but most users write once.
+\item Selective reading of columns.
+\item Cluster/basket structure.
+\item Plain encodings, one level of depth (after which the encoding is rowwise).
+\item Compression codecs: gzip, lz4, lzma, \textcolor{gray}{zstd (in consideration)}
+\end{itemize}
+
+\column{0.5\linewidth}
+{\large \underline{Parquet}}
+
+\begin{itemize}
+\item Store large collections of language-independent, columnar objects. No handling of solitary or rowwise objects.
+\item Write once, producing an immutable artifact.
+\item Selective reading of columns.
+\item Row group/page structure.
+\item Highly packed encodings, any level of depth (logarithmic scaling with depth).
+\item Compression codecs: snappy, gzip, lzo, brotli, \textcolor{gray}{lz4, zstd (version 2.3.2)}
+\end{itemize}
+\end{columns}
+\end{frame}
+
+\begin{frame}{}
+
+\end{frame}
+
+
 
 \begin{frame}{So-called ``uncompressed'' Parquet is tighter, but gzip is the same}
 \vspace{-0.1 cm}
