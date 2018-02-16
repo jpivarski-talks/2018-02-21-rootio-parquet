@@ -279,32 +279,52 @@ wings are hands
 \end{center}
 \end{frame}
 
-\begin{frame}{Parameters of the test}
+\begin{frame}{Parameters of the test (1)}
 \vspace{0.35 cm}
 \begin{description}
 \item[Datasets:] 13 different physics samples in CMS NanoAOD.
 
-\vspace{0.2 cm}
+\vspace{0.1 cm}
 Non-trivial structure: variable length lists of numbers, but no objects.
 
-\item[ROOT:] 6.12/06 (latest release)
+\vspace{0.2 cm}
+\item[ROOT:] version 6.12/06 (latest release)
 
 \begin{itemize}
 \item Cluster sizes: 200, 1000, 5000, 20\,000, 100\,000 events
 \item Basket size: 32\,000 bytes (1~basket per cluster in all but the largest)
-\item Freshly regenerated files in this ROOT version: {\tt\small GetItem} from CMS originals and {\tt\small Fill} into the datasets used in this study.
+\item Freshly regenerated files made by this ROOT version: {\tt\small GetItem} from CMS originals and {\tt\small Fill} into the datasets used in this study.
 \end{itemize}
 
-\item[Parquet:] parquet-cpp-1.3.1 inside pyarrow-0.8.0 (latest release)
+\item[Parquet:] C++ version 1.3.1 inside pyarrow-0.8.0 (latest release)
 
 \begin{itemize}
-\item Parquet files generated from ROOT via uproot: fully controlling array size so that each Parquet row group is identical to a ROOT cluster, each page is a basket.
+\item Parquet files generated from ROOT via uproot: fully controlling array size so that each Parquet row group is identical to its source ROOT cluster, each page is a basket.
 \item Parquet files contain the complete semantic information of the original, with a physical schema generated from the TTree's branch structure.
 \end{itemize}
 \end{description}
 \end{frame}
 
-\begin{frame}{Uncompressed Parquet is smaller than ROOT, but gzip is the same}
+\begin{frame}{Parameters of the test (2)}
+\vspace{0.35 cm}
+I'm using an ensemble of 13 physics samples because their probability distributions differ; e.g.\ Drell-Yan has a different muons-to-jets ratio than $t\bar{t}$.
+
+\vspace{0.5 cm}
+However, they also have a different total number of events and particles, which is not relevant to performance. We want to normalize each sample.
+
+\vspace{0.5 cm}
+Saved each sample as Numpy files, a naive dump of each branch as a large array:
+\begin{itemize}
+\item Each $n$ byte number in memory becomes an $n$ byte number on disk.
+\item Each boolean in memory becomes 1 bit on disk (packed).
+\item No compression, no metadata, just raw arrays.
+\end{itemize}
+
+\vspace{0.5 cm}
+Every file size is divided by its naive size: different physics samples have different normalization factors, but all cluster sizes, compression cases, and ROOT vs.\ Parquet have the {\it same} normalization factors.
+\end{frame}
+
+\begin{frame}{Uncompressed Parquet is smaller than ROOT, but gzip is similar}
 \vspace{-0.1 cm}
 \begin{columns}
 \column{0.26\linewidth}
@@ -337,7 +357,7 @@ Parquet gzip
 Ensemble of 13 physics types vs.\ cluster size/row group size.
 \end{frame}
 
-\begin{frame}{But Parquet's dictionary encoding is close to ROOT's full gzip}
+\begin{frame}{But Parquet's dict-encoding alone is close to ROOT's full gzip}
 \begin{columns}
 \column{0.26\linewidth}
 \begin{center}
@@ -363,7 +383,7 @@ Parquet gzip
 \column{0.26\linewidth}
 \begin{center}
 Parquet uncompressed
-with dict encoding
+with dict-encoding
 
 \includegraphics[width=\linewidth]{parquet-dict.png}
 \end{center}
