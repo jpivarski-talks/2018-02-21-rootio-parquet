@@ -114,10 +114,10 @@ wings are hands
 
 \begin{itemize}
 \item Store individual C++ objects rowwise in TDirectories and large collections of C++ objects (or simple tables) rowwise or columnar in TTrees.
-\item Can write many times, like HDF5 or a database, but most users write once.
+\item Can rewrite to the same file, like a database, but most users write once.
 \item \textcolor{darkorange}{Selective reading of columns (same).}
 \item \textcolor{darkorange}{Cluster/basket structure (same).}
-\item Plain encodings, one level of depth (after which the encoding is rowwise).
+\item Plain encodings, one level of depth (deeper structures are rowwise).
 \item Compression codecs: gzip, lz4, lzma, \textcolor{gray}{zstd (in consideration)}
 \end{itemize}
 
@@ -125,7 +125,7 @@ wings are hands
 {\large \underline{Parquet}}
 
 \begin{itemize}
-\item Only store large collections of language-independent, columnar objects. No handling of solitary or rowwise objects.
+\item Only store large collections of language-independent, columnar objects. The whole Parquet file is like a single TTree.
 \item Write once, producing an immutable artifact.
 \item \textcolor{darkorange}{Selective reading of columns (same).}
 \item \textcolor{darkorange}{Row group/page structure (same).}
@@ -142,26 +142,26 @@ wings are hands
 {\large \underline{ROOT}}
 
 \begin{itemize}
-\item First object in the file is a header providing metadata and seek points to other data structures in the file.
+\item Metadata and search through the file starts with a header.
 
-\item Header must be rewritten during file-writing to point to new objects.
+\item Header must be rewritten as objects (including baskets) accumulate.
 
-\item Failure is partially recoverable, but the writing is non-sequential.
+\item Failure is partially recoverable, but writing is non-sequential.
 
-\item Facilitates use of ROOT as a database.
+\item Also facilitates rewriting (use as a database).
 \end{itemize}
 
 \column{0.5\linewidth}
 {\large \underline{Parquet}}
 
 \begin{itemize}
-\item Last 4 bytes specify a footer size, immediately before that is a footer with metadata and seek points.
+\item Metadata and search through the file starts with a footer.
 
-\item Objects are written sequentially and only pointed to at the end.
+\item Data are written sequentially and seek points are only written at the end.
 
 \item Failure invalidates the whole file, but writing is sequential.
 
-\item Parquet is intended to be write-once.
+\item Parquet files are supposed to be immutable artifacts.
 \end{itemize}
 \end{columns}
 \end{frame}
@@ -173,22 +173,26 @@ wings are hands
 {\large \underline{ROOT}}
 
 \begin{itemize}
-\item Data structures for metadata are specified by streamers, which relate bytes on disk to fields in C++ class.
-
-\item Data in the large collections (if not simple tables) are specified by the same streamers.
+\item Layout of metadata and data structures are specified by streamers, which are saved to the same file.
 
 \item Streamer mechanism has built-in schema evolution.
 
-\item Data types are C++ types.
+\item Data types are C++ types. \mbox{\hspace{5 cm}} \mbox{\hspace{5 cm}}
+
+\item Objects in TTrees are specified by the same streamers.
 \end{itemize}
 
 \column{0.5\linewidth}
 {\large \underline{Parquet}}
 
 \begin{itemize}
-\item Reuses Thrift, a rowwise data specification, for the metadata, inheriting its schema evolution.
+\item Layout of metadata and data structures are specified by Thrift, an existing rowwise object specification.
 
-\item Separately specifies a physical schema (how the data are represented in terms of simple types) and logical schema (mapping onto an existing type system). Data types are independent of any programming language.
+\item Thrift has schema evolution. \mbox{\hspace{5 cm}}
+
+\item Simple data types are described by a physical schema, related to external type systems by a logical schema.
+
+\item Thrift for metadata, schemas for data--- no unification.
 \end{itemize}
 \end{columns}
 \end{frame}
@@ -196,28 +200,34 @@ wings are hands
 \begin{frame}{Implementation comparision: ROOT and Parquet (3)}
 \vspace{0.5 cm}
 \begin{columns}
-\column{0.5\linewidth}
+\column{0.52\linewidth}
 {\large \underline{ROOT}}
 
 \begin{itemize}
-\item Variable-sized data enabled by two arrays: contiguous data content and pointers to the start of each object.
+\item Contiguous data array accompanied by:
+
+\begin{itemize}
+\item navigation array: pointers to the start of each variable-sized object.
+\end{itemize}
 
 \item Permits random access by entry index.
 \end{itemize}
 
-\column{0.5\linewidth}
+\column{0.52\linewidth}
 {\large \underline{Parquet}}
 
 \begin{itemize}
-\item Contiguous data array accompanied by two more arrays:
+\item Contiguous data array accompanied by:
 \begin{itemize}
 \item definition levels: integers indicating depth of first {\tt\small null} in data; maximum for non-null data.
 \item repetition levels: integers indicating depth of continuing sub-list, e.g.\ {\tt\small 0} means new top-level list.
 \end{itemize}
 
-\item Definition levels required for non- nullable data, to encode empty lists.
+\item Definition levels even required for non- nullable data, to encode empty lists.
 
-\item Schema depth fixes maximum definition/repetition values, and therefore number of bits in their representations.
+\item Schema depth fixes maximum definition/repetition values, and therefore their number of bits.
+
+\item Must be unraveled for random access.
 \end{itemize}
 \end{columns}
 \end{frame}
@@ -236,11 +246,11 @@ wings are hands
 {\large \underline{Parquet}}
 
 \begin{itemize}
-\item Integers and booleans with known maximum are packed into the fewest possible bits.
+\item Integers and booleans with known maxima are packed into the fewest possible bits.
 
 \item Other integers are encoded in variable-width formats, e.g.\ 1~byte up to 127, 2~bytes up to 16511, zig-zagging for signed integers.
 
-\item Switches between run length encoding and bit-packing dynamically.
+\item Dynamically switches between run length encoding and bit-packing.
 
 \item Optional ``dictionary encoding,'' which replaces data with a dictionary of unique values and indexes into that dictionary (variable-width encoded).
 \end{itemize}
@@ -254,20 +264,18 @@ wings are hands
 {\large \underline{ROOT}}
 
 \begin{itemize}
-\item Granular unit of reading/decompression is a basket, which may be anywhere in the file (located by TKey).
+\item Granular unit of reading and decompression is a basket, which may be anywhere in the file (located by TKey).
 
-\item Basket boundaries may line up in clusters (controlled by autoflush). Clusters are a convenient unit of parallelization.
+\item Entry numbers of baskets {\it may} line up in clusters (controlled by {\tt\small AutoFlush}). Clusters are a convenient unit of parallelization.
 \end{itemize}
 
 \column{0.5\linewidth}
 {\large \underline{Parquet}}
 
 \begin{itemize}
-\item Footer specifies row groups, which are like ROOT's clusters, but enforced. Row groups are the granular unit of parallelization (usually tuned to HDFS block size).
+\item Granular unit of reading and decompression is a page, which must be contiguous by column (similar to ROOT's {\tt\small SortBasketsByBranch}).
 
-\item Data for one column of a row group are split into pages, the granular unit of reading/decompression.
-
-\item Pages of a column are contiguous, always effectively like ROOT's ``{\tt\small SortBasketsByBranch}.''
+\item Entry numbers of columns (contiguous group of pages) {\it must} line up in row groups, which are the granular unit of parallelization.
 \end{itemize}
 \end{columns}
 \end{frame}
