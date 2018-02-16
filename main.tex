@@ -431,7 +431,7 @@ But the triggers alone are not responsible for the large standard deviation of u
 \end{frame}
 
 \begin{frame}{Effect of offset arrays (new TIOFeatures)}
-\vspace{0.25 cm}
+\vspace{0.35 cm}
 Highest cluster/row group (100\,000 events), average and \underline{standard deviation} sizes:
 
 \renewcommand{\arraystretch}{1.2}
@@ -447,6 +447,11 @@ dictionary encoding &                 &                 & $0.44 \pm 0.02$ \\
 \end{tabular}
 \end{center}
 
+\vspace{0.25 cm}
+10\% (lzma) to 40\% (lz4) gains are equal (lzma) to a little larger than (lz4) the predictions based on last year's studies. This is a more complete study.
+
+\vspace{0.25 cm}
+However, ROOT with lz4 and offset-removal is about the same as Parquet with no compression, only dictionary encoding.
 \end{frame}
 
 
