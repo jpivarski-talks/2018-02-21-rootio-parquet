@@ -391,22 +391,31 @@ with dict-encoding
 \end{frame}
 
 \begin{frame}{Tabular comparison}
-\vspace{0.5 cm}
+\vspace{0.25 cm}
 Highest cluster/row group (100\,000 events), average and \underline{standard deviation} sizes:
+
+\renewcommand{\arraystretch}{1.2}
 
 \begin{center}
 \begin{tabular}{r c c | c c}
                     & \multicolumn{2}{c}{all branches} & \multicolumn{2}{c}{without trigger} \\
                     & ROOT            & Parquet         & ROOT            & Parquet          \\\hline
-uncompressed        & $1.48 \pm 0.16$ & $1.10 \pm 0.02$ & $1.32 \pm 0.11$ & $1.10 \pm 0.02$  \\
+uncompressed        & $^{\textcolor{white}{*}}1.48 \pm 0.16^{\textcolor{white}{*}}$ & $^{\textcolor{white}{*}}1.10 \pm 0.02^{\textcolor{white}{*}}$ & $1.32 \pm 0.11$ & $^{\textcolor{white}{*}}1.10 \pm 0.02^*$  \\
 dictionary encoding &                 & $0.44 \pm 0.02$ &                 & $0.42 \pm 0.01$  \\
 lz4                 & $0.60 \pm 0.03$ &                 & $0.58 \pm 0.03$ &                  \\
-gzip                & $0.45 \pm 0.01$ & $0.36 \pm 0.01$ & $0.45 \pm 0.01$ & $0.37 \pm 0.01$  \\
+gzip                & $0.45 \pm 0.01$ & $0.36 \pm 0.01$ & $^{\textcolor{white}{*}}0.45 \pm 0.01^*$ & $0.37 \pm 0.01$  \\
 lzma                & \ldots          &                 & $0.29 \pm 0.01$ &                  \\
 \end{tabular}
 \end{center}
 
+\vspace{-0.1 cm}
+\hfill {\scriptsize ($^*$not copy-paste errors)}
+
+\vspace{0.2 cm}
 $601+21$ of NanoAOD's $955$ branches are booleans named {\tt\small HLT\_*} or {\tt\small Flag\_*}, which unnecessarily increase the uncompressed ROOT size.
+
+\vspace{0.2 cm}
+But the triggers alone are not responsible for the large standard deviation of uncompressed ROOT sizes.
 \end{frame}
 
 
