@@ -380,6 +380,13 @@ ROOT gzip
 \end{center}
 \column{0.26\linewidth}
 \begin{center}
+Parquet uncompressed
+with dict-encoding
+
+\includegraphics[width=\linewidth]{parquet-dict.png}
+\end{center}
+\column{0.26\linewidth}
+\begin{center}
 \mbox{\hspace{3 cm}}
 ROOT lzma
 
@@ -391,13 +398,6 @@ ROOT lzma
 Parquet gzip
 
 \includegraphics[width=\linewidth]{parquet-gzip-2.png}
-\end{center}
-\column{0.26\linewidth}
-\begin{center}
-Parquet uncompressed
-with dict-encoding
-
-\includegraphics[width=\linewidth]{parquet-dict.png}
 \end{center}
 \end{columns}
 \end{frame}
@@ -430,6 +430,24 @@ $601+21$ of NanoAOD's $955$ branches are booleans named {\tt\small HLT\_*} or {\
 But the triggers alone are not responsible for the large standard deviation of uncompressed ROOT sizes.
 \end{frame}
 
+\begin{frame}{Effect of offset arrays (new TIOFeatures)}
+\vspace{0.25 cm}
+Highest cluster/row group (100\,000 events), average and \underline{standard deviation} sizes:
+
+\renewcommand{\arraystretch}{1.2}
+
+\begin{center}
+\begin{tabular}{r c c c}
+                    & ROOT default    & ROOT no offsets & Parquet         \\\hline
+uncompressed        & $1.48 \pm 0.16$ & $1.20 \pm 0.07$ & $1.10 \pm 0.02$ \\
+gzip                & $0.45 \pm 0.01$ & $0.35 \pm 0.01$ & $0.36 \pm 0.01$ \\
+lzma                & $0.30 \pm 0.01$ & $0.27 \pm 0.01$ &                 \\
+lz4                 & $0.60 \pm 0.03$ & $0.41 \pm 0.01$ &                 \\
+dictionary encoding &                 &                 & $0.44 \pm 0.02$ \\
+\end{tabular}
+\end{center}
+
+\end{frame}
 
 
 
