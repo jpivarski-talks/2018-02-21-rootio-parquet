@@ -68,7 +68,7 @@
 2007 & Thrift & \textcolor{darkorange}{hierarchical} & rowwise & many & Facebook's RPC protocol \\
 2009 & Avro & \textcolor{darkorange}{hierarchical} & rowwise & many & Hadoop's object permanance and interchange format \\
 2010 & Dremel & \textcolor{darkorange}{hierarchical} & \textcolor{darkorange}{columnar} & C++, Java & Google's nested-object database (closed source), became BigQuery \\
-\only<1>{2013}\only<2>{\textcolor{blue}{2013}} & \only<1>{Parquet}\only<2>{\textcolor{blue}{Parquet}} & \only<1>{\textcolor{darkorange}{hierarchical}}\only<2>{\textcolor{blue}{hierarchical}} & \only<1>{\textcolor{darkorange}{columnar}}\only<2>{\textcolor{blue}{columnar}} & \only<1>{many}\only<2>{\textcolor{blue}{many}} & \only<1>{open source object persistence, based on Google's paper}\only<2>{\textcolor{blue}{open source object persistence, based on Google's paper}} \\
+\only<1>{2013}\only<2>{\textcolor{blue}{2013}} & \only<1>{Parquet}\only<2>{\textcolor{blue}{Parquet}} & \only<1>{\textcolor{darkorange}{hierarchical}}\only<2>{\textcolor{blue}{hierarchical}} & \only<1>{\textcolor{darkorange}{columnar}}\only<2>{\textcolor{blue}{columnar}} & \only<1>{many}\only<2>{\textcolor{blue}{many}} & \only<1>{open source object persistence, based on Google's Dremel paper}\only<2>{\textcolor{blue}{open source object persistence, based on Google's Dremel paper}} \\
 2016 & Arrow & \textcolor{darkorange}{hierarchical} & \textcolor{darkorange}{columnar} & many & shared-memory object exchange \\
 \end{tabular}
 \end{columns}
@@ -403,6 +403,9 @@ Parquet gzip
 \end{frame}
 
 \begin{frame}{Effect of NanoAOD's many boolean branches}
+\vspace{0.35 cm}
+$601+21$ of NanoAOD's $955$ branches are booleans (named {\tt\small HLT\_*} and {\tt\small Flag\_*}), which unnecessarily inflate the uncompressed ROOT size (8 bytes per boolean).
+
 \vspace{0.25 cm}
 Highest cluster/row group (100\,000 events), average and \underline{standard deviation} sizes:
 
@@ -416,7 +419,7 @@ uncompressed        & $^{\textcolor{white}{*}}1.48 \pm 0.16^{\textcolor{white}{*
 dictionary encoding &                 & $0.44 \pm 0.02$ &                 & $0.42 \pm 0.01$  \\
 lz4                 & $0.60 \pm 0.03$ &                 & $0.58 \pm 0.03$ &                  \\
 gzip                & $0.45 \pm 0.01$ & $0.36 \pm 0.01$ & $^{\textcolor{white}{*}}0.45 \pm 0.01^*$ & $0.37 \pm 0.01$  \\
-lzma                & \ldots          &                 & $0.29 \pm 0.01$ &                  \\
+lzma                & $0.30 \pm 0.01$ &                 & $0.29 \pm 0.01$ &                  \\
 \end{tabular}
 \end{center}
 
@@ -424,14 +427,14 @@ lzma                & \ldots          &                 & $0.29 \pm 0.01$ &     
 \hfill {\scriptsize ($^*$not copy-paste errors)}
 
 \vspace{0.2 cm}
-$601+21$ of NanoAOD's $955$ branches are booleans named {\tt\small HLT\_*} or {\tt\small Flag\_*}, which unnecessarily increase the uncompressed ROOT size.
-
-\vspace{0.2 cm}
-But the triggers alone are not responsible for the large standard deviation of uncompressed ROOT sizes.
+The triggers alone are not responsible for the large ROOT file sizes (and variance).
 \end{frame}
 
-\begin{frame}{Effect of offset arrays (new TIOFeatures)}
+\begin{frame}{Effect of dropping offset arrays (new TIOFeatures)}
 \vspace{0.35 cm}
+Last year, we predicted 10--30\% improvements if we drop offset arrays, depending on compression algorithm (lzma had the least to gain, lz4 the most).
+
+\vspace{0.25 cm}
 Highest cluster/row group (100\,000 events), average and \underline{standard deviation} sizes:
 
 \renewcommand{\arraystretch}{1.2}
@@ -448,10 +451,7 @@ dictionary encoding &                 &                 & $0.44 \pm 0.02$ \\
 \end{center}
 
 \vspace{0.25 cm}
-10\% (lzma) to 40\% (lz4) gains are equal (lzma) to a little larger than (lz4) the predictions based on last year's studies. This is a more complete study.
-
-\vspace{0.25 cm}
-However, ROOT with lz4 and offset-removal is about the same as Parquet with no compression, only dictionary encoding.
+Dropping offset arrays is a little better than predicted and brings ROOT-gzip exactly in line with Parquet-gzip. However, ROOT-lz4 is about the same as {\it uncompressed} Parquet with dictionary encoding.
 \end{frame}
 
 
